@@ -1,0 +1,23 @@
+
+# Starting
+
+  brew install openssl
+  brew install libssh2
+  brew install libgit2
+
+# Developing
+
+  go get github.com/jingweno/nut
+
+Run `nut install`
+
+https://libgit2.github.com/docs/guides/101-samples/
+https://libgit2.github.com/libgit2/ex/HEAD/status.html
+
+for SSH support
+https://golog.co/blog/article/Git2Go
+
+
+# Known Issues
+
+* Does not support SSH

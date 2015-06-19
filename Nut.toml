@@ -1,0 +1,17 @@
+[dependencies]
+
+# "gopkg.in/libgit2/git2go.v22" = ""
+"github.com/libgit2/git2go" = ""
+# "github.com/gogits/git" = "20693f7c"
+# "github.com/jdigger/gogits" = ""
+"github.com/onsi/ginkgo" = "v1.2.0"
+"github.com/onsi/gomega" = "v1.0"
+"github.com/op/go-logging" = ""
+
+# dependencies for gogits
+# "github.com/jdigger/cae" = ""
+# "github.com/smartystreets/goconvey" = ""
+
+
+# "github.com/octokit/go-octokit/octokit" = ""
+# "github.com/fhs/go-netrc/netrc" = "4422b68c9c"
