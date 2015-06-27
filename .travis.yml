@@ -5,7 +5,8 @@ go:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libgit2
+  - sudo apt-get install -y libssh2
+  - sudo apt-get install -y libgit2-dev
 
 install:
   -
