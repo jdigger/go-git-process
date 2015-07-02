@@ -66,24 +66,6 @@ type WorkingRepository interface {
 	WorkingRepositoryWriter
 }
 
-type gitRepository git.Repository
-
-func (gitRepo gitRepository) Index() *Index {
-	gr := git.Repository(gitRepo)
-	var idx Index
-	idx = gitIndexStruct{gitRepo: &gr}
-	return &idx
-}
-
-func (gitRepo gitRepository) Tree(treeID Oid) (Tree, error) {
-	if treeID == nil {
-		return nil, fmt.Errorf("treeID == nil")
-	}
-	var tree Tree
-	tree = treeStruct{oid: treeID}
-	return tree, nil
-}
-
 /*
 CreateRepository takes a path to a git repository and returns a instance
 to work on it.
@@ -107,13 +89,31 @@ func CreateRepository(repoPath string) (WorkingRepository, error) {
 		return Fetch(repoStruct, options, repoStruct.RemoteFactory, repoStruct.RemotesFactory)
 	}
 	repoStruct.TreeFactory = func(treeID Oid) (Tree, error) {
-		return gitRepository(*gitRepo).Tree(treeID)
+		return treeFromGitRepo(gitRepository(*gitRepo), treeID)
 	}
 	repoStruct.Committer = func(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error) {
 		return createCommit(gitRepo, refname, author, committer, message, tree, parents...)
 	}
 
 	return repo, nil
+}
+
+type gitRepository git.Repository
+
+func indexFromGitRepo(gitRepo gitRepository) *Index {
+	gr := git.Repository(gitRepo)
+	var idx Index
+	idx = gitIndexStruct{gitRepo: &gr}
+	return &idx
+}
+
+func treeFromGitRepo(gitRepo gitRepository, treeID Oid) (Tree, error) {
+	if treeID == nil {
+		return nil, fmt.Errorf("treeID == nil")
+	}
+	var tree Tree
+	tree = treeStruct{oid: treeID}
+	return tree, nil
 }
 
 // ******************************************
@@ -163,7 +163,7 @@ func (repoStruct RepositoryStruct) Checkout(checkoutOptions CheckoutOptions) (Br
 }
 
 func (repoStruct RepositoryStruct) Index() *Index {
-	return repoStruct.gitRepo().Index()
+	return indexFromGitRepo(*repoStruct.gitRepo())
 }
 
 func (repoStruct RepositoryStruct) LookupTree(treeID Oid) (Tree, error) {
