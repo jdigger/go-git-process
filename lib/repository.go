@@ -36,7 +36,7 @@ type RepositoryWriter interface {
 	// See Fetcher.Fetch()
 	Fetch(fetchOptions FetchOptions) error
 
-	Checkout(checkoutOptions CheckoutOptions) (*Branch, error)
+	Checkout(checkoutOptions CheckoutOptions) (Branch, error)
 
 	CreateCommit(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error)
 }
@@ -139,7 +139,7 @@ func (repoStruct RepositoryStruct) Path() string {
 }
 
 // Checkout checks the working directory out to the branch given in the options, returning the current Branch
-func (repoStruct RepositoryStruct) Checkout(checkoutOptions CheckoutOptions) (*Branch, error) {
+func (repoStruct RepositoryStruct) Checkout(checkoutOptions CheckoutOptions) (Branch, error) {
 	// TODO: Implement
 	return nil, nil
 }
