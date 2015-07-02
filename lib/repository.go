@@ -14,7 +14,7 @@ import (
 // ******************************************
 
 /*
-Repository encapsulates the primary operational parts of a git repository.
+RepositoryReader encapsulates reading from a git repository.
 */
 type RepositoryReader interface {
 	// the filesystem path of the repository
@@ -28,9 +28,11 @@ type RepositoryReader interface {
 }
 
 /*
-Repository encapsulates the primary operational parts of a git repository.
+RepositoryWriter encapsulates modifying a git repository.
 */
 type RepositoryWriter interface {
+	RepositoryReader
+
 	// See Fetcher.Fetch()
 	Fetch(fetchOptions FetchOptions) error
 
@@ -43,7 +45,6 @@ type RepositoryWriter interface {
 Repository encapsulates the primary operational parts of a git repository.
 */
 type Repository interface {
-	RepositoryReader
 	RepositoryWriter
 }
 
@@ -82,7 +83,7 @@ func CreateRepository(repoPath string) (Repository, error) {
 	}
 	var repo Repository = repoStruct
 	repoStruct.RemotesFactory = func() (Remotes, error) {
-		return listRemotes(gitRepo, &repo, &repoStruct.RemoteFactory)
+		return listRemotes(*gitRepo, repo, repoStruct.RemoteFactory)
 	}
 	repoStruct.Fetcher = func(options FetchOptions) error {
 		return Fetch(repoStruct, options, repoStruct.RemoteFactory, repoStruct.RemotesFactory)

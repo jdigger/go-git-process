@@ -86,7 +86,7 @@ type Remote interface {
 gitRemoteStruct implements the Remote interface using the git2go library
 */
 type gitRemoteStruct struct {
-	Repo      Repository
+	Repo      RepositoryWriter
 	name      string
 	gitRemote *git.Remote
 	gitRepo   *git.Repository
@@ -127,7 +127,7 @@ func (remote *gitRemoteStruct) ensureGitRepo() {
 func (remote *gitRemoteStruct) ensureGitRemote() {
 	remote.ensureGitRepo()
 	if remote.gitRemote == nil {
-		gitRemote, err := gitRemote(remote)
+		gitRemote, err := gitRemote(*remote)
 		if err != nil {
 			log.Fatalf("Could not get git remote: %s - \"%s\"", remote.Name(), err)
 		}
@@ -159,7 +159,7 @@ func (remotes Remotes) GetByName(remoteName string) *Remote {
 // ******************************************
 // ******************************************
 
-func listRemotes(gitRepo *git.Repository, repo *Repository, remoteFactory *RemoteFactory) (Remotes, error) {
+func listRemotes(gitRepo git.Repository, repo RepositoryReader, remoteFactory RemoteFactory) (Remotes, error) {
 	remoteNames, err := gitRepo.ListRemotes()
 	if err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ func listRemotes(gitRepo *git.Repository, repo *Repository, remoteFactory *Remot
 
 	var remotes Remotes
 	for _, remoteName := range remoteNames {
-		remote, err := (*remoteFactory)(remoteName)
+		remote, err := remoteFactory(remoteName)
 		if err != nil {
 			return nil, err
 		}
@@ -176,7 +176,7 @@ func listRemotes(gitRepo *git.Repository, repo *Repository, remoteFactory *Remot
 	return remotes, nil
 }
 
-func gitRemote(remote *gitRemoteStruct) (*git.Remote, error) {
+func gitRemote(remote gitRemoteStruct) (*git.Remote, error) {
 	remote.ensureGitRepo()
 	remotes, err := remoteNames(remote.gitRepo, remote.Name())
 	if err != nil {
