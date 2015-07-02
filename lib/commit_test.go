@@ -1,7 +1,7 @@
 package gitprocess_test
 
 import (
-	"com.mooregreatsoftware/go-git-process/lib"
+	gp "com.mooregreatsoftware/go-git-process/lib"
 	. "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/onsi/ginkgo"
 	. "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/onsi/gomega"
 )
@@ -17,8 +17,8 @@ var _ = Describe("Commit", func() {
 
 	var _ = Context("Has remotes", func() {
 		It("should do stuff", func() {
-			tree, err := gitprocess.AddPaths(tempRepo)
-			commit, err := tempRepo.CreateCommit("", nil, nil, "test msg", tree, nil)
+			tree, err := gp.AddPaths(tempRepo)
+			commit, err := tempRepo.CreateCommit("", gp.Signature{}, gp.Signature{}, "test msg", tree, gp.Commit{})
 			Ω(err).ShouldNot(HaveOccurred())
 			head, err := tempRepo.Head()
 			Ω(err).ShouldNot(HaveOccurred())

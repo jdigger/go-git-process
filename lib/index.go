@@ -11,7 +11,7 @@ import "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/gi
 // Index represents the current set of changes in git
 type Index interface {
 	AddByPath(path ...string) error
-	WriteTree() (*Tree, error)
+	WriteTree() (Tree, error)
 }
 
 // ******************************************
@@ -40,7 +40,7 @@ func (gitIndex gitIndexStruct) AddByPath(paths ...string) error {
 	return nil
 }
 
-func (gitIndex gitIndexStruct) WriteTree() (*Tree, error) {
+func (gitIndex gitIndexStruct) WriteTree() (Tree, error) {
 	gitIndex.ensureGitIndex()
 	gitOid, err := gitIndex.gitIndex.WriteTree()
 	if err != nil {
@@ -49,5 +49,5 @@ func (gitIndex gitIndexStruct) WriteTree() (*Tree, error) {
 	oid := Oid(*gitOid)
 	var tree Tree
 	tree = treeStruct{oid: &oid}
-	return &tree, nil
+	return tree, nil
 }

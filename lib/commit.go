@@ -69,13 +69,13 @@ func forEachConfigEntry(config *git.Config, processor func(configEntry git.Confi
 	}
 }
 
-func createCommit(gitRepo *git.Repository, refname string, author *Signature, committer *Signature, message string, tree *Tree, parents ...*Commit) (*Commit, error) {
-	if committer == nil || committer.Email == "" {
+func createCommit(gitRepo *git.Repository, refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error) {
+	if committer.Email == "" {
 		sig := defaultSignature(gitRepo)
-		committer = &sig
+		committer = sig
 	}
 
-	if author == nil || author.Email == "" {
+	if author.Email == "" {
 		author = committer
 	}
 
@@ -87,33 +87,33 @@ func createCommit(gitRepo *git.Repository, refname string, author *Signature, co
 	}
 
 	if tree == nil {
-		return nil, errors.New("tree == nil")
+		return Commit{}, errors.New("tree == nil")
 	}
 
 	log.Info("Creating commit on %s with %s and %s", refname, committer, author)
 
-	gitAuthorSig := git.Signature(*author)
-	gitCommitterSig := git.Signature(*committer)
+	gitAuthorSig := git.Signature(author)
+	gitCommitterSig := git.Signature(committer)
 
 	gitTree, err := gitTree(tree, gitRepo)
 	if err != nil {
-		return nil, err
+		return Commit{}, err
 	}
 
 	gitParents := [](*git.Commit){}
 	for _, parent := range parents {
-		if parent != nil {
-			gitParents = append(gitParents, toGitCommit(gitRepo, *parent))
+		if parent.Oid != nil {
+			gitParents = append(gitParents, toGitCommit(gitRepo, parent))
 		}
 	}
 
 	gitOid, err := gitRepo.CreateCommit(refname, &gitAuthorSig, &gitCommitterSig, message, gitTree, gitParents...)
 	if err != nil {
-		return nil, err
+		return Commit{}, err
 	}
 	oid := Oid(*gitOid)
 
-	return &Commit{Oid: &oid}, nil
+	return Commit{Oid: &oid}, nil
 }
 
 func toGitCommit(gitRepo *git.Repository, commit Commit) *git.Commit {

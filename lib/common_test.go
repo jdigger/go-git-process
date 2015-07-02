@@ -44,7 +44,7 @@ func CreateTestRepo() gitprocess.Repository {
 }
 
 func SeedTestRepo(repo gitprocess.Repository) gitprocess.Commit {
-	sig := &gitprocess.Signature{}
+	sig := gitprocess.Signature{}
 
 	tree, err := gitprocess.AddPaths(repo, "README")
 	CheckFatal(err)
@@ -53,7 +53,7 @@ func SeedTestRepo(repo gitprocess.Repository) gitprocess.Commit {
 	commit, err := repo.CreateCommit("HEAD", sig, sig, message, tree)
 	CheckFatal(err)
 
-	return *commit
+	return commit
 }
 
 func PathInRepo(repo *git.Repository, name string) string {

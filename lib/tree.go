@@ -35,7 +35,7 @@ func (treeStruct treeStruct) Oid() *Oid {
 // ******************************************
 
 // AddPaths adds the given paths to the Index and returns a Tree including them
-func AddPaths(repo Repository, paths ...string) (*Tree, error) {
+func AddPaths(repo Repository, paths ...string) (Tree, error) {
 	idx := *repo.Index()
 	for _, path := range paths {
 		err := idx.AddByPath(path)
@@ -47,11 +47,11 @@ func AddPaths(repo Repository, paths ...string) (*Tree, error) {
 }
 
 // gitTree translates a gitprocess.Tree to a git.Tree
-func gitTree(tree *Tree, gitRepo *git.Repository) (*git.Tree, error) {
+func gitTree(tree Tree, gitRepo *git.Repository) (*git.Tree, error) {
 	if tree == nil {
 		return nil, nil
 	}
-	treeOid := (*tree).Oid()
+	treeOid := tree.Oid()
 	gitTreeOid := git.Oid(*treeOid)
 	gitTree, err := gitRepo.LookupTree(&gitTreeOid)
 	if err != nil {

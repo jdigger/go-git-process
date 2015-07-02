@@ -38,7 +38,7 @@ type RepositoryWriter interface {
 
 	Checkout(checkoutOptions CheckoutOptions) (*Branch, error)
 
-	CreateCommit(refname string, author, committer *Signature, message string, tree *Tree, parents ...*Commit) (*Commit, error)
+	CreateCommit(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error)
 }
 
 /*
@@ -91,7 +91,7 @@ func CreateRepository(repoPath string) (Repository, error) {
 	repoStruct.TreeFactory = func(treeID *Oid) (*Tree, error) {
 		return gitRepository(*gitRepo).Tree(treeID)
 	}
-	repoStruct.Committer = func(refname string, author, committer *Signature, message string, tree *Tree, parents ...*Commit) (*Commit, error) {
+	repoStruct.Committer = func(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error) {
 		return createCommit(gitRepo, refname, author, committer, message, tree, parents...)
 	}
 
@@ -126,7 +126,7 @@ type IndexFactory func() (*Index, error)
 type TreeFactory func(*Oid) (*Tree, error)
 
 // Committer defines how to create a commit and returns the Oid created
-type Committer func( /*refname*/ string /*author*/, *Signature /*committer*/, *Signature /*message*/, string /*tree*/, *Tree /*parents*/, ...*Commit) (*Commit, error)
+type Committer func( /*refname*/ string /*author*/, Signature /*committer*/, Signature /*message*/, string /*tree*/, Tree /*parents*/, ...Commit) (Commit, error)
 
 // Fetch updates the local repositry. See Fetcher
 func (repoStruct RepositoryStruct) Fetch(options FetchOptions) error {
@@ -153,7 +153,7 @@ func (repoStruct RepositoryStruct) LookupTree(treeID *Oid) (*Tree, error) {
 }
 
 // CreateCommit creates a commit
-func (repoStruct RepositoryStruct) CreateCommit(refname string, author *Signature, committer *Signature, message string, tree *Tree, parents ...*Commit) (*Commit, error) {
+func (repoStruct RepositoryStruct) CreateCommit(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error) {
 	return repoStruct.Committer(refname, author, committer, message, tree, parents...)
 }
 
