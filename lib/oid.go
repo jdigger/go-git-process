@@ -27,10 +27,12 @@ func NewOid(oidStr string) Oid {
 	return oidStruct{oidStr: oidStr}
 }
 
-func validateOid(oidStr string) error {
-	_, err := git.NewOid(oidStr)
-	return err
-}
+// ******************************************
+//
+// oidStruct
+// implements the Oid interface
+//
+// ******************************************
 
 type oidStruct struct {
 	oidStr string
@@ -40,13 +42,17 @@ func (oid oidStruct) String() string {
 	return oid.oidStr
 }
 
-// Equal compares two Oids for equality
-func (oid oidStruct) Equal(other Oid) bool {
-	myStr := oid.oidStr
-	otherStr := other.String()
-	return myStr == otherStr
-}
+// ******************************************
+//
+// Functions
+//
+// ******************************************
 
 func toGitOid(oid Oid) (*git.Oid, error) {
 	return git.NewOid(oid.String())
+}
+
+func validateOid(oidStr string) error {
+	_, err := git.NewOid(oidStr)
+	return err
 }
