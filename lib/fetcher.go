@@ -178,7 +178,7 @@ func listRemotes(gitRepo git.Repository, repo RepositoryReader, remoteFactory Re
 
 func gitRemote(remote gitRemoteStruct) (*git.Remote, error) {
 	remote.ensureGitRepo()
-	remotes, err := remoteNames(remote.gitRepo, remote.Name())
+	remotes, err := remoteNames(*remote.gitRepo, remote.Name())
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func normalizeRemoteName(remoteName string, remotes Remotes) string {
 	return remoteName
 }
 
-func remoteNames(gitRepo *git.Repository, remoteName string) ([]string, error) {
+func remoteNames(gitRepo git.Repository, remoteName string) ([]string, error) {
 	remotes, err := gitRepo.ListRemotes()
 	if err != nil {
 		return nil, err

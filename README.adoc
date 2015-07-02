@@ -11,6 +11,10 @@
 
 Run `nut install`
 
+// config management and CLI
+https://github.com/spf13/viper
+https://github.com/spf13/cobra
+
 https://libgit2.github.com/docs/guides/101-samples/
 https://libgit2.github.com/libgit2/ex/HEAD/status.html
 

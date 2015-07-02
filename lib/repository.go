@@ -24,7 +24,7 @@ type RepositoryReader interface {
 
 	LookupTree(treeID *Oid) (*Tree, error)
 
-	Head() (*Commit, error)
+	Head() (Commit, error)
 }
 
 /*
@@ -157,23 +157,23 @@ func (repoStruct RepositoryStruct) CreateCommit(refname string, author *Signatur
 	return repoStruct.Committer(refname, author, committer, message, tree, parents...)
 }
 
-func (repoStruct RepositoryStruct) Head() (*Commit, error) {
+func (repoStruct RepositoryStruct) Head() (Commit, error) {
 	gitRepo := git.Repository(*repoStruct.gitRepo())
 	ref, err := gitRepo.LookupReference("HEAD")
 	if err != nil {
-		return nil, err
+		return Commit{}, err
 	}
 	ref, err = ref.Resolve()
 	if err != nil {
-		return nil, err
+		return Commit{}, err
 	}
 	goid := ref.Target()
 	if goid == nil {
-		return nil, errors.New("goid == null")
+		return Commit{}, errors.New("goid == null")
 	}
 	oid := Oid(*goid)
 	commit := Commit{Oid: &oid}
-	return &commit, nil
+	return commit, nil
 }
 
 func (repoStruct RepositoryStruct) gitRepo() *gitRepository {
