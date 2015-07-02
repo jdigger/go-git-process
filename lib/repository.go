@@ -161,18 +161,17 @@ func (repoStruct RepositoryStruct) Head() (Commit, error) {
 	gitRepo := git.Repository(*repoStruct.gitRepo())
 	ref, err := gitRepo.LookupReference("HEAD")
 	if err != nil {
-		return Commit{}, err
+		return nil, err
 	}
 	ref, err = ref.Resolve()
 	if err != nil {
-		return Commit{}, err
+		return nil, err
 	}
 	goid := ref.Target()
 	if goid == nil {
-		return Commit{}, errors.New("goid == null")
+		return nil, errors.New("goid == null")
 	}
-	oid := Oid(*goid)
-	commit := Commit{Oid: &oid}
+	commit := CreateCommit(Oid(*goid))
 	return commit, nil
 }
 

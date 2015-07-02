@@ -15,12 +15,25 @@ import (
 // ******************************************
 
 // Commit is a git commit
-type Commit struct {
-	Oid *Oid
+type Commit interface {
+	Oid() Oid
 }
 
-func (commit Commit) String() string {
-	return "Commit{" + commit.Oid.String() + "}"
+type commitStruct struct {
+	oid Oid
+}
+
+// CreateCommit creates a new instance of a Commit type
+func CreateCommit(oid Oid) Commit {
+	return commitStruct{oid: oid}
+}
+
+func (commit commitStruct) Oid() Oid {
+	return commit.oid
+}
+
+func (commit commitStruct) String() string {
+	return "Commit{" + commit.oid.String() + "}"
 }
 
 // ******************************************
@@ -87,7 +100,7 @@ func createCommit(gitRepo *git.Repository, refname string, author Signature, com
 	}
 
 	if tree == nil {
-		return Commit{}, errors.New("tree == nil")
+		return nil, errors.New("tree == nil")
 	}
 
 	log.Info("Creating commit on %s with %s and %s", refname, committer, author)
@@ -97,27 +110,27 @@ func createCommit(gitRepo *git.Repository, refname string, author Signature, com
 
 	gitTree, err := gitTree(tree, gitRepo)
 	if err != nil {
-		return Commit{}, err
+		return nil, err
 	}
 
 	gitParents := [](*git.Commit){}
 	for _, parent := range parents {
-		if parent.Oid != nil {
+		if parent != nil {
 			gitParents = append(gitParents, toGitCommit(gitRepo, parent))
 		}
 	}
 
 	gitOid, err := gitRepo.CreateCommit(refname, &gitAuthorSig, &gitCommitterSig, message, gitTree, gitParents...)
 	if err != nil {
-		return Commit{}, err
+		return nil, err
 	}
 	oid := Oid(*gitOid)
 
-	return Commit{Oid: &oid}, nil
+	return commitStruct{oid: oid}, nil
 }
 
 func toGitCommit(gitRepo *git.Repository, commit Commit) *git.Commit {
-	oid := *commit.Oid
+	oid := commit.Oid()
 	goid := git.Oid(oid)
 	gitCommit, err := gitRepo.LookupCommit(&goid)
 	if err != nil {

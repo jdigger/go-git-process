@@ -15,15 +15,15 @@ var _ = Describe("Commit", func() {
 		CleanupTestRepo(tempRepo)
 	})
 
-	var _ = Context("Has remotes", func() {
-		It("should do stuff", func() {
+	var _ = Context("Simple repo commit", func() {
+		It("should create a simple commit", func() {
 			tree, err := gp.AddPaths(tempRepo)
-			commit, err := tempRepo.CreateCommit("", gp.Signature{}, gp.Signature{}, "test msg", tree, gp.Commit{})
+			commit, err := tempRepo.CreateCommit("", gp.Signature{}, gp.Signature{}, "test msg", tree, nil)
 			Ω(err).ShouldNot(HaveOccurred())
 			head, err := tempRepo.Head()
 			Ω(err).ShouldNot(HaveOccurred())
-			headOid := *head.Oid
-			Ω(headOid).Should(Equal(*commit.Oid))
+			headOid := head.Oid()
+			Ω(headOid).Should(Equal(commit.Oid()))
 		})
 
 		// It("should fail fetching a failing repository", func() {
