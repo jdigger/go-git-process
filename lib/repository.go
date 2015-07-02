@@ -16,22 +16,35 @@ import (
 /*
 Repository encapsulates the primary operational parts of a git repository.
 */
-type Repository interface {
-	// See Fetcher.Fetch()
-	Fetch(fetchOptions FetchOptions) error
-
+type RepositoryReader interface {
 	// the filesystem path of the repository
 	Path() string
-
-	Checkout(checkoutOptions CheckoutOptions) (*Branch, error)
 
 	Index() *Index
 
 	LookupTree(treeID *Oid) (*Tree, error)
 
-	CreateCommit(refname string, author, committer *Signature, message string, tree *Tree, parents ...*Commit) (*Commit, error)
-
 	Head() (*Commit, error)
+}
+
+/*
+Repository encapsulates the primary operational parts of a git repository.
+*/
+type RepositoryWriter interface {
+	// See Fetcher.Fetch()
+	Fetch(fetchOptions FetchOptions) error
+
+	Checkout(checkoutOptions CheckoutOptions) (*Branch, error)
+
+	CreateCommit(refname string, author, committer *Signature, message string, tree *Tree, parents ...*Commit) (*Commit, error)
+}
+
+/*
+Repository encapsulates the primary operational parts of a git repository.
+*/
+type Repository interface {
+	RepositoryReader
+	RepositoryWriter
 }
 
 type gitRepository git.Repository
