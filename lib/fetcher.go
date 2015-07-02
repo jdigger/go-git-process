@@ -86,7 +86,7 @@ type Remote interface {
 gitRemoteStruct implements the Remote interface using the git2go library
 */
 type gitRemoteStruct struct {
-	Repo      RepositoryWriter
+	Repo      WorkingRepository
 	name      string
 	gitRemote *git.Remote
 	gitRepo   *git.Repository

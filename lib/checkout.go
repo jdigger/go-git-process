@@ -23,7 +23,7 @@ func (co *CheckoutOptions) Branch() *Branch {
 	return co.branch
 }
 
-func Checkout(repo Repository, branchName string) error {
+func Checkout(repo WorkingRepository, branchName string) error {
 	gitRepo, err := git.OpenRepository(repo.Path())
 	if err != nil {
 		return err

@@ -17,12 +17,17 @@ import (
 RepositoryReader encapsulates reading from a git repository.
 */
 type RepositoryReader interface {
+	LookupTree(treeID Oid) (Tree, error)
+}
+
+/*
+WorkingRepositoryReader encapsulates reading from a non-bare git repository.
+*/
+type WorkingRepositoryReader interface {
 	// the filesystem path of the repository
 	Path() string
 
 	Index() *Index
-
-	LookupTree(treeID Oid) (Tree, error)
 
 	Head() (Commit, error)
 }
@@ -31,21 +36,34 @@ type RepositoryReader interface {
 RepositoryWriter encapsulates modifying a git repository.
 */
 type RepositoryWriter interface {
-	RepositoryReader
+	CreateCommit(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error)
+}
 
+/*
+WorkingRepositoryWriter encapsulates modifying a non-bare git repository.
+*/
+type WorkingRepositoryWriter interface {
 	// See Fetcher.Fetch()
 	Fetch(fetchOptions FetchOptions) error
 
 	Checkout(checkoutOptions CheckoutOptions) (Branch, error)
-
-	CreateCommit(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error)
 }
 
 /*
 Repository encapsulates the primary operational parts of a git repository.
 */
 type Repository interface {
+	RepositoryReader
 	RepositoryWriter
+}
+
+/*
+WorkingRepository encapsulates the primary operational parts of a git repository.
+*/
+type WorkingRepository interface {
+	Repository
+	WorkingRepositoryReader
+	WorkingRepositoryWriter
 }
 
 type gitRepository git.Repository
@@ -70,7 +88,7 @@ func (gitRepo gitRepository) Tree(treeID Oid) (Tree, error) {
 CreateRepository takes a path to a git repository and returns a instance
 to work on it.
 */
-func CreateRepository(repoPath string) (Repository, error) {
+func CreateRepository(repoPath string) (WorkingRepository, error) {
 	log.Info("Opening repository at \"%s\"", repoPath)
 	gitRepo, err := git.OpenRepository(repoPath)
 	if err != nil {
@@ -81,7 +99,7 @@ func CreateRepository(repoPath string) (Repository, error) {
 	repoStruct.RemoteFactory = func(remoteName string) (Remote, error) {
 		return gitRemoteStruct{Repo: repoStruct, name: remoteName, gitRepo: gitRepo}, nil
 	}
-	var repo Repository = repoStruct
+	var repo WorkingRepository = repoStruct
 	repoStruct.RemotesFactory = func() (Remotes, error) {
 		return listRemotes(*gitRepo, repo, repoStruct.RemoteFactory)
 	}

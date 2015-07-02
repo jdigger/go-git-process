@@ -35,7 +35,7 @@ func (treeStruct treeStruct) Oid() Oid {
 // ******************************************
 
 // AddPaths adds the given paths to the Index and returns a Tree including them
-func AddPaths(repo Repository, paths ...string) (Tree, error) {
+func AddPaths(repo WorkingRepositoryReader, paths ...string) (Tree, error) {
 	idx := *repo.Index()
 	for _, path := range paths {
 		err := idx.AddByPath(path)

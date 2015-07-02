@@ -13,9 +13,9 @@ import (
 
 var log = logging.MustGetLogger("gitprocess_test")
 
-var tempRepo gitprocess.Repository
+var tempRepo gitprocess.WorkingRepository
 
-func CleanupTestRepo(r gitprocess.Repository) {
+func CleanupTestRepo(r gitprocess.WorkingRepository) {
 	err := os.RemoveAll(r.Path())
 	CheckFatal(err)
 }
@@ -26,7 +26,7 @@ func CheckFatal(err error) {
 	}
 }
 
-func CreateTestRepo() gitprocess.Repository {
+func CreateTestRepo() gitprocess.WorkingRepository {
 	// figure out where we can create the test repo
 	path, err := ioutil.TempDir("", "git2go")
 	CheckFatal(err)
@@ -43,7 +43,7 @@ func CreateTestRepo() gitprocess.Repository {
 	return repo
 }
 
-func SeedTestRepo(repo gitprocess.Repository) gitprocess.Commit {
+func SeedTestRepo(repo gitprocess.WorkingRepository) gitprocess.Commit {
 	sig := gitprocess.Signature{}
 
 	tree, err := gitprocess.AddPaths(repo, "README")
