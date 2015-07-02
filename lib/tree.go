@@ -10,7 +10,7 @@ import "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/gi
 
 // Tree represents a filesystem structure in git
 type Tree interface {
-	Oid() *Oid
+	Oid() Oid
 }
 
 // ******************************************
@@ -21,10 +21,10 @@ type Tree interface {
 // ******************************************
 
 type treeStruct struct {
-	oid *Oid
+	oid Oid
 }
 
-func (treeStruct treeStruct) Oid() *Oid {
+func (treeStruct treeStruct) Oid() Oid {
 	return treeStruct.oid
 }
 
@@ -52,8 +52,11 @@ func gitTree(tree Tree, gitRepo *git.Repository) (*git.Tree, error) {
 		return nil, nil
 	}
 	treeOid := tree.Oid()
-	gitTreeOid := git.Oid(*treeOid)
-	gitTree, err := gitRepo.LookupTree(&gitTreeOid)
+	gitTreeOid, err := toGitOid(treeOid)
+	if err != nil {
+		return nil, err
+	}
+	gitTree, err := gitRepo.LookupTree(gitTreeOid)
 	if err != nil {
 		return nil, err
 	}

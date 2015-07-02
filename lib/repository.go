@@ -22,7 +22,7 @@ type RepositoryReader interface {
 
 	Index() *Index
 
-	LookupTree(treeID *Oid) (*Tree, error)
+	LookupTree(treeID Oid) (Tree, error)
 
 	Head() (Commit, error)
 }
@@ -57,13 +57,13 @@ func (gitRepo gitRepository) Index() *Index {
 	return &idx
 }
 
-func (gitRepo gitRepository) Tree(treeID *Oid) (*Tree, error) {
+func (gitRepo gitRepository) Tree(treeID Oid) (Tree, error) {
 	if treeID == nil {
 		return nil, fmt.Errorf("treeID == nil")
 	}
 	var tree Tree
 	tree = treeStruct{oid: treeID}
-	return &tree, nil
+	return tree, nil
 }
 
 /*
@@ -88,7 +88,7 @@ func CreateRepository(repoPath string) (Repository, error) {
 	repoStruct.Fetcher = func(options FetchOptions) error {
 		return Fetch(repoStruct, options, repoStruct.RemoteFactory, repoStruct.RemotesFactory)
 	}
-	repoStruct.TreeFactory = func(treeID *Oid) (*Tree, error) {
+	repoStruct.TreeFactory = func(treeID Oid) (Tree, error) {
 		return gitRepository(*gitRepo).Tree(treeID)
 	}
 	repoStruct.Committer = func(refname string, author Signature, committer Signature, message string, tree Tree, parents ...Commit) (Commit, error) {
@@ -123,7 +123,7 @@ type Fetcher func(options FetchOptions) error
 type IndexFactory func() (*Index, error)
 
 // TreeFactory defines how to create a Tree based on the given Index
-type TreeFactory func(*Oid) (*Tree, error)
+type TreeFactory func(Oid) (Tree, error)
 
 // Committer defines how to create a commit and returns the Oid created
 type Committer func( /*refname*/ string /*author*/, Signature /*committer*/, Signature /*message*/, string /*tree*/, Tree /*parents*/, ...Commit) (Commit, error)
@@ -148,7 +148,7 @@ func (repoStruct RepositoryStruct) Index() *Index {
 	return repoStruct.gitRepo().Index()
 }
 
-func (repoStruct RepositoryStruct) LookupTree(treeID *Oid) (*Tree, error) {
+func (repoStruct RepositoryStruct) LookupTree(treeID Oid) (Tree, error) {
 	return repoStruct.TreeFactory(treeID)
 }
 
@@ -171,7 +171,7 @@ func (repoStruct RepositoryStruct) Head() (Commit, error) {
 	if goid == nil {
 		return nil, errors.New("goid == null")
 	}
-	commit := CreateCommit(Oid(*goid))
+	commit := CreateCommit(NewOid(goid.String()))
 	return commit, nil
 }
 

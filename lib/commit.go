@@ -124,15 +124,18 @@ func createCommit(gitRepo *git.Repository, refname string, author Signature, com
 	if err != nil {
 		return nil, err
 	}
-	oid := Oid(*gitOid)
+	oid := NewOid(gitOid.String())
 
 	return commitStruct{oid: oid}, nil
 }
 
 func toGitCommit(gitRepo *git.Repository, commit Commit) *git.Commit {
 	oid := commit.Oid()
-	goid := git.Oid(oid)
-	gitCommit, err := gitRepo.LookupCommit(&goid)
+	goid, err := toGitOid(oid)
+	if err != nil {
+		panic(err)
+	}
+	gitCommit, err := gitRepo.LookupCommit(goid)
 	if err != nil {
 		panic(err)
 	}

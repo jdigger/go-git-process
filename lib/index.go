@@ -46,8 +46,8 @@ func (gitIndex gitIndexStruct) WriteTree() (Tree, error) {
 	if err != nil {
 		return nil, err
 	}
-	oid := Oid(*gitOid)
+	oid := NewOid(gitOid.String())
 	var tree Tree
-	tree = treeStruct{oid: &oid}
+	tree = treeStruct{oid: oid}
 	return tree, nil
 }

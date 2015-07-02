@@ -1,6 +1,10 @@
 package gitprocess
 
-import "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/git2go"
+import (
+	"fmt"
+
+	"com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/git2go"
+)
 
 // ******************************************
 //
@@ -9,16 +13,40 @@ import "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/gi
 // ******************************************
 
 // Oid is an Object ID in git
-type Oid git.Oid
+type Oid interface {
+	fmt.Stringer
+}
 
-func (oid Oid) String() string {
-	goid := git.Oid(oid)
-	return goid.String()
+// NewOid creates a new Oid for the given string. It panics if it's not a valid oid.
+func NewOid(oidStr string) Oid {
+	err := validateOid(oidStr)
+	if err != nil {
+		panic(err)
+	}
+
+	return oidStruct{oidStr: oidStr}
+}
+
+func validateOid(oidStr string) error {
+	_, err := git.NewOid(oidStr)
+	return err
+}
+
+type oidStruct struct {
+	oidStr string
+}
+
+func (oid oidStruct) String() string {
+	return oid.oidStr
 }
 
 // Equal compares two Oids for equality
-func (oid Oid) Equal(other Oid) bool {
-	goid := git.Oid(oid)
-	gother := git.Oid(other)
-	return goid.Equal(&gother)
+func (oid oidStruct) Equal(other Oid) bool {
+	myStr := oid.oidStr
+	otherStr := other.String()
+	return myStr == otherStr
+}
+
+func toGitOid(oid Oid) (*git.Oid, error) {
+	return git.NewOid(oid.String())
 }
