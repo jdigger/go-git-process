@@ -13,21 +13,15 @@ import (
 //
 // ******************************************
 
-/*
-RepositoryReader encapsulates reading from a git repository.
-*/
+// RepositoryReader encapsulates reading from a git repository
 type RepositoryReader interface {
 	LookupTree(treeID Oid) (Tree, error)
 }
 
-/*
-WorkingRepositoryReader encapsulates reading from a non-bare git repository.
-*/
+// WorkingRepositoryReader encapsulates reading from a non-bare git repository
 type WorkingRepositoryReader interface {
 	// the filesystem path of the repository
 	Path() string
-
-	Index() *Index
 
 	Head() (Commit, error)
 }

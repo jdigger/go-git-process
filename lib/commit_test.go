@@ -17,7 +17,7 @@ var _ = Describe("Commit", func() {
 
 	var _ = Context("Simple repo commit", func() {
 		It("should create a simple commit", func() {
-			tree, err := gp.AddPaths(tempRepo)
+			tree, err := gp.AddPaths(gp.NewIndexSource(tempRepo))
 			commit, err := tempRepo.CreateCommit("", gp.Signature{}, gp.Signature{}, "test msg", tree, nil)
 			Ω(err).ShouldNot(HaveOccurred())
 			head, err := tempRepo.Head()

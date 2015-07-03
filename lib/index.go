@@ -1,6 +1,10 @@
 package gitprocess
 
-import "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/git2go"
+import (
+	"fmt"
+
+	"com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/git2go"
+)
 
 // ******************************************
 //
@@ -12,6 +16,39 @@ import "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/gi
 type Index interface {
 	AddByPath(path ...string) error
 	WriteTree() (Tree, error)
+}
+
+// IndexSource provides a pointer to the current working git index
+type IndexSource interface {
+	Index() *Index
+}
+
+// ******************************************
+//
+// gitIndexSource
+// implements the IndexSource interface
+//
+// ******************************************
+
+type getIndexSourceStruct struct {
+	gitRepo *git.Repository
+}
+
+func NewIndexSource(repo WorkingRepositoryReader) IndexSource {
+	repoStruct, ok := repo.(RepositoryStruct)
+	if ok {
+		gr := git.Repository(*repoStruct.gitRepo())
+		return getIndexSourceStruct{gitRepo: &gr}
+	}
+	gitRepo, err := git.OpenRepository(repo.Path())
+	if err != nil {
+		panic(fmt.Errorf("Problem opening repository at \"%s\": %v", repo.Path(), err))
+	}
+	return getIndexSourceStruct{gitRepo: gitRepo}
+}
+
+func (indexSource getIndexSourceStruct) Index() *Index {
+	return indexFromGitRepo(gitRepository(*indexSource.gitRepo))
 }
 
 // ******************************************

@@ -1,7 +1,9 @@
 package gitprocess_test
 
 import (
-	"com.mooregreatsoftware/go-git-process/lib"
+	"fmt"
+
+	gp "com.mooregreatsoftware/go-git-process/lib"
 	"com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/libgit2/git2go"
 	. "com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/onsi/ginkgo"
 	"com.mooregreatsoftware/go-git-process/vendor/_nuts/github.com/op/go-logging"
@@ -13,9 +15,17 @@ import (
 
 var log = logging.MustGetLogger("gitprocess_test")
 
-var tempRepo gitprocess.WorkingRepository
+type tempRepoType interface {
+	gp.IndexSource
+	gp.RepositoryWriter
+	gp.RepositoryReader
+	gp.WorkingRepositoryWriter
+	gp.WorkingRepositoryReader
+}
 
-func CleanupTestRepo(r gitprocess.WorkingRepository) {
+var tempRepo tempRepoType
+
+func CleanupTestRepo(r tempRepoType) {
 	err := os.RemoveAll(r.Path())
 	CheckFatal(err)
 }
@@ -26,7 +36,7 @@ func CheckFatal(err error) {
 	}
 }
 
-func CreateTestRepo() gitprocess.WorkingRepository {
+func CreateTestRepo() tempRepoType {
 	// figure out where we can create the test repo
 	path, err := ioutil.TempDir("", "git2go")
 	CheckFatal(err)
@@ -38,15 +48,19 @@ func CreateTestRepo() gitprocess.WorkingRepository {
 	err = ioutil.WriteFile(path+"/"+tmpfile, []byte("foo\n"), 0644)
 	CheckFatal(err)
 
-	repo, err := gitprocess.CreateRepository(path)
+	repo, err := gp.CreateRepository(path)
 	CheckFatal(err)
-	return repo
+	trepo, ok := repo.(tempRepoType)
+	if !ok {
+		Fail(fmt.Sprintf("Could not convert %#v to `tempRepoType`", repo))
+	}
+	return trepo
 }
 
-func SeedTestRepo(repo gitprocess.WorkingRepository) gitprocess.Commit {
-	sig := gitprocess.Signature{}
+func SeedTestRepo(repo tempRepoType) gp.Commit {
+	sig := gp.Signature{}
 
-	tree, err := gitprocess.AddPaths(repo, "README")
+	tree, err := gp.AddPaths(repo, "README")
 	CheckFatal(err)
 
 	message := "This is a commit\n"
