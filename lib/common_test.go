@@ -50,6 +50,7 @@ func CreateTestRepo() tempRepoType {
 
 	repo, err := gp.CreateRepository(path)
 	CheckFatal(err)
+
 	trepo, ok := repo.(tempRepoType)
 	if !ok {
 		Fail(fmt.Sprintf("Could not convert %#v to `tempRepoType`", repo))
